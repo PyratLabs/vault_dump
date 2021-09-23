@@ -1,0 +1,64 @@
+---
+
+name: CI
+
+'on':
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.0'
+
+      - name: Install dependencies
+        run: |
+          go version
+          go mod download
+
+      - name: Run build
+        run: go build .
+
+      - name: Run vet
+        run: |
+          go vet .
+
+      # Tests not yet written
+      # - name: Run testing
+      #  run: cd test && go test -v
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.0'
+
+      - name: Run build
+        run: make all
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            LICENSE
+            build/*
