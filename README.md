@@ -89,9 +89,18 @@ Example command:
 ```bash
 $ ./vault_dump \
     --action=restore \
-    --input="$(date +%s).json.asc" \
+    --input="somedump.json.asc" \
     --passphrase="yo_r-Str0ng-Pa55-phRaSe" \ # This can also be specified with VAULT_DUMP_PASSPHRASE environment variable
     --key=me@email.com.asc  # This is a private key
+```
+
+### Container image
+
+You can download the container image from hub.docker.com:
+
+```bash
+$ docker pull xanmanning/vault-dump:latest
+$ podman pull docker.io/xanmanning/vault-dump:latest
 ```
 
 ## License
