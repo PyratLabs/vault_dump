@@ -56,8 +56,8 @@ var dumpCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(dumpCmd)
 
-	dumpCmd.PersistentFlags().StringVarP(&core.KeyFile, "key", "k",
-		"", "gpg key to use (private key required for decryption)")
+	dumpCmd.PersistentFlags().StringSliceVarP(&core.KeyFile, "key", "k",
+		nil, "gpg key(s) to use for encryption")
 
 	dumpCmd.PersistentFlags().StringVarP(&core.OutFile, "file", "f",
 		"", "output file for dump")
@@ -143,7 +143,7 @@ func runDump() {
 	core.Logger.Debug("core.Logger created")
 	core.Logger.Debug("run() called")
 
-	if core.KeyFile == "" {
+	if core.KeyFile == nil {
 		core.Logger.Debug("empty key file path string",
 			"file", core.KeyFile)
 		core.Logger.Error("--key needs and argument")
@@ -168,8 +168,8 @@ func runDump() {
 		core.Logger.Error("failed to encrypt dump output", "err", err)
 		os.Exit(1)
 	} else {
-		core.Logger.Info("encrypted json file with key",
-			"key", core.KeyFile)
+		core.Logger.Info("encrypted json file with keys",
+			"keys", core.KeyFile)
 	}
 
 	output, err := out.GetArmored()

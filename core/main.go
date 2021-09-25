@@ -24,7 +24,7 @@ var (
 	IgnoreAddress bool
 	InFile        string
 	IsRestore     bool = false
-	KeyFile       string
+	KeyFile       []string
 	KeyRing       crypto.KeyRing
 	KeyPass       string
 	LogFmt        bool
@@ -88,74 +88,76 @@ func LoadKey() crypto.KeyRing {
 		KeyPass = EPassPhrase
 	}
 
-	raw_key, err := ioutil.ReadFile(KeyFile)
-
-	if err != nil {
-		Logger.Error("unable to read file", "key", KeyFile, "err", err)
-		os.Exit(1)
-	}
-
-	keyObj, err := crypto.NewKeyFromArmored(string(raw_key))
-
-	if err != nil {
-		Logger.Error("unable to read key", "key", KeyFile, "err", err)
-		os.Exit(1)
-	}
-
-	if keyObj.IsPrivate() {
-		Logger.Debug("private key loaded: can encrypt and decrypt")
-		isLocked, err := keyObj.IsLocked()
-		if err != nil {
-			Logger.Error("unable to determine if key is locked", "err", err)
-			os.Exit(1)
-		}
-		if isLocked {
-			Logger.Debug("key information", "locked", "true")
-
-			if KeyPass == "" {
-				Logger.Error("cannot unlock key," +
-					"no passphrase specified" +
-					"(--passphrase|-p|VAULT_DUMP_PASSPHRASE)")
-				os.Exit(1)
-			}
-
-			keyObjUnlocked, err = keyObj.Unlock([]byte(KeyPass))
-			if err != nil {
-				Logger.Error("unable to unlock key", "err", err)
-				os.Exit(1)
-			}
-
-			Logger.Debug("key unlocked")
-		} else {
-			keyObjUnlocked = keyObj
-		}
-	} else {
-		Logger.Debug("public key loaded: can encrypt only")
-		Logger.Debug("is this a restore?", "IsRestore", IsRestore)
-		if IsRestore {
-			Logger.Error("key file is a public key, cannot decrypt vault dump",
-				"KeyFile", KeyFile)
-			os.Exit(1)
-		}
-		keyObjUnlocked = keyObj
-	}
-
-	if keyObjUnlocked.IsExpired() {
-		Logger.Warn("key has expired")
-	}
-
-	Logger.Debug("key information", "fingerprint",
-		keyObjUnlocked.GetFingerprint())
-	Logger.Debug("key information", "id",
-		keyObjUnlocked.GetKeyID())
-	Logger.Debug("key information", "hex",
-		keyObjUnlocked.GetHexKeyID())
-
-	KeyRing, err := crypto.NewKeyRing(keyObjUnlocked)
-
+	KeyRing, err := crypto.NewKeyRing(nil)
 	if err != nil {
 		Logger.Error("cannot create key ring", "err", err)
 		os.Exit(1)
+	}
+
+	for _, keyfile := range KeyFile {
+		raw_key, err := ioutil.ReadFile(keyfile)
+		if err != nil {
+			Logger.Error("unable to read file", "key", keyfile, "err", err)
+			os.Exit(1)
+		}
+
+		keyObj, err := crypto.NewKeyFromArmored(string(raw_key))
+		if err != nil {
+			Logger.Error("unable to read key", "key", keyfile, "err", err)
+			os.Exit(1)
+		}
+
+		if keyObj.IsPrivate() {
+			Logger.Debug("private key loaded: can encrypt and decrypt")
+			isLocked, err := keyObj.IsLocked()
+			if err != nil {
+				Logger.Error("unable to determine if key is locked", "err", err)
+				os.Exit(1)
+			}
+
+			if isLocked {
+				Logger.Debug("key information", "locked", "true")
+
+				if KeyPass == "" {
+					Logger.Error("cannot unlock key," +
+						"no passphrase specified" +
+						"(--passphrase|-p|VAULT_DUMP_PASSPHRASE)")
+					os.Exit(1)
+				}
+
+				keyObjUnlocked, err = keyObj.Unlock([]byte(KeyPass))
+				if err != nil {
+					Logger.Error("unable to unlock key", "err", err)
+					os.Exit(1)
+				}
+
+				Logger.Debug("key unlocked")
+			} else {
+				keyObjUnlocked = keyObj
+			}
+		} else {
+			Logger.Debug("public key loaded: can encrypt only")
+			Logger.Debug("is this a restore?", "IsRestore", IsRestore)
+			if IsRestore {
+				Logger.Error("key file is a public key, cannot decrypt vault dump",
+					"KeyFile", KeyFile)
+				os.Exit(1)
+			}
+			keyObjUnlocked = keyObj
+		}
+
+		if keyObjUnlocked.IsExpired() {
+			Logger.Warn("key has expired")
+		}
+
+		Logger.Debug("key information", "fingerprint",
+			keyObjUnlocked.GetFingerprint())
+		Logger.Debug("key information", "id",
+			keyObjUnlocked.GetKeyID())
+		Logger.Debug("key information", "hex",
+			keyObjUnlocked.GetHexKeyID())
+
+		KeyRing.AddKey(keyObjUnlocked)
 	}
 
 	return *KeyRing

@@ -56,8 +56,8 @@ var restoreCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(restoreCmd)
 
-	restoreCmd.PersistentFlags().StringVarP(&core.KeyFile, "key", "k",
-		"", "gpg key to use (private key required for decryption)")
+	restoreCmd.PersistentFlags().StringSliceVarP(&core.KeyFile, "key", "k",
+		nil, "gpg key to use (private key required for decryption)")
 
 	restoreCmd.PersistentFlags().StringVarP(&core.InFile, "file", "f",
 		"", "input file for restore")
@@ -159,7 +159,7 @@ func runRestore() {
 	core.Logger.Debug("core.Logger created")
 	core.Logger.Debug("run() called")
 
-	if core.KeyFile == "" {
+	if core.KeyFile == nil {
 		core.Logger.Debug("empty key file path string",
 			"KeyFile", core.KeyFile)
 		core.Logger.Error("--key needs and argument")

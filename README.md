@@ -54,23 +54,24 @@ To dump, you need to ensure you have the following:
     }
     ```
 
-Example command using a public key:
+Example dump command using multiple public keys:
 
 ```bash
 $ ./vault_dump \
     dump \
     --file="$(date +%s).json.asc" \
-    --key=me@email.com.pub  # This is a public key
+    --key=me.at.email.com.pub \  # This is one public key
+    --key=you.at.email.com.pub   # This is another public key
 ```
 
-Example command using a private key:
+Example dump command using a private key (not recommended):
 
 ```bash
 $ ./vault_dump \
     dump \
     --file="$(date +%s).json.asc" \
     --passphrase="yo_r-Str0ng-Pa55-phRaSe" \ # This can also be specified with VAULT_DUMP_PASSPHRASE environment variable
-    --key=me@email.com.asc  # This is a private key
+    --key=me.at.email.com.asc  # This is a private key
 ```
 
 ### Restore prerequisites
