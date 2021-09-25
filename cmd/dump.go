@@ -70,8 +70,6 @@ func init() {
 
 	dumpCmd.PersistentFlags().BoolVarP(&core.Debug, "debug", "x",
 		false, "enable debug output")
-
-	core.IsRestore = false
 }
 
 func dump() []byte {
@@ -159,6 +157,7 @@ func runDump() {
 
 	core.Logger.Info("dump has been requested", "file", core.OutFile)
 
+	core.IsRestore = false
 	core.KeyRing = core.LoadKey()
 	jsonOut := dump()
 

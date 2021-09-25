@@ -73,8 +73,6 @@ func init() {
 
 	restoreCmd.PersistentFlags().BoolVarP(&core.Debug, "debug", "x",
 		false, "enable debug output")
-
-	core.IsRestore = true
 }
 
 func restore(dump []byte) {
@@ -175,6 +173,7 @@ func runRestore() {
 
 	core.Logger.Info("restore has been requested", "file", core.InFile)
 
+	core.IsRestore = true
 	core.KeyRing = core.LoadKey()
 
 	encDump, err := ioutil.ReadFile(core.InFile)

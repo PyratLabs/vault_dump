@@ -23,7 +23,7 @@ var (
 	Debug         bool
 	IgnoreAddress bool
 	InFile        string
-	IsRestore     bool
+	IsRestore     bool = false
 	KeyFile       string
 	KeyRing       crypto.KeyRing
 	KeyPass       string
@@ -131,6 +131,7 @@ func LoadKey() crypto.KeyRing {
 		}
 	} else {
 		Logger.Debug("public key loaded: can encrypt only")
+		Logger.Debug("is this a restore?", "IsRestore", IsRestore)
 		if IsRestore {
 			Logger.Error("key file is a public key, cannot decrypt vault dump",
 				"KeyFile", KeyFile)
