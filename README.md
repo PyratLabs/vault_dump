@@ -19,18 +19,21 @@ Dump and restore secrets from Hashicorp Vault
 
 Usage:
   vault_dump [flags]
+  vault_dump [command]
+
+Available Commands:
+  completion  generate the autocompletion script for the specified shell
+  dump        Dump Vault to an encrypted JSON file
+  help        Help about any command
+  restore     Restore an encrypted JSON dump to Vault
 
 Flags:
-  -a, --action string       action to take (either 'dump' or 'restore')
-  -x, --debug               enable debug output
-  -h, --help                help for vault_dump
-  -g, --ignore-address      ignore mismatched restore address
-  -i, --input string        input file for restore
-  -j, --json                print logs in JSON format
-  -k, --key string          gpg key to use (private key required for decryption)
-  -o, --output string       output file for dump
-  -p, --passphrase string   passphrase for private key
-  -v, --version             show vault_dump version
+  -x, --debug     enable debug output
+  -h, --help      help for vault_dump
+  -j, --json      print logs in JSON format
+  -v, --version   show vault_dump version
+
+Use "vault_dump [command] --help" for more information about a command.
 ```
 
 ### Dump prerequisites
@@ -51,23 +54,24 @@ To dump, you need to ensure you have the following:
     }
     ```
 
-Example command using a public key:
+Example dump command using multiple public keys:
 
 ```bash
 $ ./vault_dump \
-    --action=dump \
-    --output="$(date +%s).json.asc" \
-    --key=me@email.com.pub  # This is a public key
+    dump \
+    --file="$(date +%s).json.asc" \
+    --key=me.at.email.com.pub \  # This is one public key
+    --key=you.at.email.com.pub   # This is another public key
 ```
 
-Example command using a private key:
+Example dump command using a private key (not recommended):
 
 ```bash
 $ ./vault_dump \
-    --action=dump \
-    --output="$(date +%s).json.asc" \
+    dump \
+    --file="$(date +%s).json.asc" \
     --passphrase="yo_r-Str0ng-Pa55-phRaSe" \ # This can also be specified with VAULT_DUMP_PASSPHRASE environment variable
-    --key=me@email.com.asc  # This is a private key
+    --key=me.at.email.com.asc  # This is a private key
 ```
 
 ### Restore prerequisites
@@ -88,8 +92,8 @@ Example command:
 
 ```bash
 $ ./vault_dump \
-    --action=restore \
-    --input="somedump.json.asc" \
+    restore \
+    --file="somedump.json.asc" \
     --passphrase="yo_r-Str0ng-Pa55-phRaSe" \ # This can also be specified with VAULT_DUMP_PASSPHRASE environment variable
     --key=me@email.com.asc  # This is a private key
 ```

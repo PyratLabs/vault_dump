@@ -30,7 +30,9 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package main
 
-import "github.com/PyratLabs/vault_dump/cmd"
+import (
+	"github.com/PyratLabs/vault_dump/cmd"
+)
 
 var version string = "development"
 var gitHash string
