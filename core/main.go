@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
-	"github.com/hashicorp/go-hclog"
+	hclog "github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/go-homedir"
 
 	vault "github.com/hashicorp/vault/api"
@@ -210,4 +210,21 @@ func Authenticate() (*vault.Client, error) {
 	client.SetToken(VaultToken)
 
 	return client, err
+}
+
+func CreateLogger(name string, debug bool, json bool) hclog.Logger {
+	var logLevel string
+
+	if debug {
+		logLevel = "DEBUG"
+	} else {
+		logLevel = "INFO"
+	}
+
+	return hclog.New(&hclog.LoggerOptions{
+		Name:       name,
+		Level:      hclog.LevelFromString(logLevel),
+		JSONFormat: json,
+		Color:      hclog.AutoColor,
+	})
 }

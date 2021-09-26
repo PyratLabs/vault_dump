@@ -40,7 +40,6 @@ import (
 	core "github.com/PyratLabs/vault_dump/core"
 	kv "github.com/PyratLabs/vault_dump/kv"
 	transit "github.com/PyratLabs/vault_dump/transit"
-	hclog "github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )
 
@@ -141,20 +140,7 @@ func restore(dump []byte) {
 }
 
 func runRestore() {
-	var logLevel string
-
-	if core.Debug {
-		logLevel = "DEBUG"
-	} else {
-		logLevel = "INFO"
-	}
-
-	core.Logger = hclog.New(&hclog.LoggerOptions{
-		Name:       "vault_dump",
-		Level:      hclog.LevelFromString(logLevel),
-		JSONFormat: core.LogFmt,
-		Color:      hclog.AutoColor,
-	})
+	core.Logger = core.CreateLogger("vault_dump", core.Debug, core.LogFmt)
 
 	core.Logger.Debug("core.Logger created")
 	core.Logger.Debug("run() called")
@@ -163,6 +149,13 @@ func runRestore() {
 		core.Logger.Debug("empty key file path string",
 			"KeyFile", core.KeyFile)
 		core.Logger.Error("--key needs and argument")
+		os.Exit(1)
+	}
+
+	if len(core.KeyFile) > 1 {
+		core.Logger.Debug("too many keys have been specified for restore",
+			"KeyFile", core.KeyFile)
+		core.Logger.Error("--key can only be specified once for restore")
 		os.Exit(1)
 	}
 
