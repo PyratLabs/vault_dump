@@ -39,8 +39,6 @@ import (
 	core "github.com/PyratLabs/vault_dump/core"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	hclog "github.com/hashicorp/go-hclog"
 )
 
 var (
@@ -85,23 +83,11 @@ func init() {
 }
 
 func run() {
-	var logLevel string
-
-	if core.Debug {
-		logLevel = "DEBUG"
-	} else {
-		logLevel = "INFO"
-	}
-
-	core.Logger = hclog.New(&hclog.LoggerOptions{
-		Name:       "vault_dump",
-		Level:      hclog.LevelFromString(logLevel),
-		JSONFormat: core.LogFmt,
-		Color:      hclog.AutoColor,
-	})
+	core.Logger = core.CreateLogger("vault_dump", core.Debug, core.LogFmt)
 
 	if showVersion {
 		core.Logger.Info("created by Xan Manning",
+			"url", "https://github.com/PyratLabs/vault_dump",
 			"version", version, "git-hash", gitHash)
 		os.Exit(0)
 	}
