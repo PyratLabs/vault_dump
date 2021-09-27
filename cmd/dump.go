@@ -97,17 +97,18 @@ func dump() []byte {
 			core.Logger.Debug("mount found",
 				"path", path,
 				"type", mount.Type,
-				"options", mount.Options)
+				"options", mount.Options,
+				"config", mount.Config)
 
 			switch mount.Type {
 			case "kv":
 				core.Logger.Info("performing kv dump", "path", path)
 				dumpOut.Mounts = append(dumpOut.Mounts,
-					kv.DumpKvMount(client, path))
+					kv.DumpKvMount(client, path, mount))
 			case "transit":
 				core.Logger.Info("performing transit key dump", "path", path)
 				dumpOut.Mounts = append(dumpOut.Mounts,
-					transit.DumpTransitMount(client, path))
+					transit.DumpTransitMount(client, path, mount))
 			default:
 				core.Logger.Warn("mount type not supported",
 					"mount.Type", mount.Type)
