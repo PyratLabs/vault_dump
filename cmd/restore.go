@@ -67,6 +67,10 @@ func init() {
 	restoreCmd.PersistentFlags().StringVarP(&core.KeyPass, "passphrase", "p",
 		"", "passphrase for private key")
 
+	restoreCmd.PersistentFlags().BoolVarP(&core.RecreateMount,
+		"recreate-mounts", "r", false,
+		"re-create mounts if they are not present")
+
 	restoreCmd.PersistentFlags().BoolVarP(&core.LogFmt, "json", "j",
 		false, "print logs in JSON format")
 
@@ -121,21 +125,43 @@ func restore(dump []byte) {
 		core.Logger.Debug("searching for mount", "mount", m.Mount,
 			"found", mountExists)
 
-		if mountExists {
-			core.Logger.Info("restoring mount point", "mount", m.Mount)
-			switch m.Type {
-			case "kv":
-				core.Logger.Debug("mount is a kv", "mount", m.Mount)
-				kv.RestoreKvMount(client, m.Mount, m.Paths)
-			case "transit":
-				core.Logger.Debug("mount is a transit", "mount", m.Mount)
-				transit.RestoreTransitMount(client, m.Mount, m.Paths)
-			default:
-				core.Logger.Warn("unsupported mount type", "type", m.Type)
+		if !mountExists {
+			if core.RecreateMount {
+				switch m.Type {
+				case "kv":
+					core.Logger.Info("recreating kv mount",
+						"mount", m.Mount, "version", m.Version)
+					kv.CreateKVMount(client, m.Mount, m.Version,
+						m.Description, m.Config, m.Options)
+				case "transit":
+					core.Logger.Info("recreating transit mount",
+						"mount", m.Mount, "version", m.Version)
+					transit.CreateTransitMount(client, m.Mount, m.Version,
+						m.Description, m.Config, m.Options)
+				default:
+					core.Logger.Error("cannot recreate mount type",
+						"type", m.Type, "version", m.Version)
+					os.Exit(1)
+				}
+			} else {
+				core.Logger.Warn("could not find mount point",
+					"mount", m.Mount)
+				continue
 			}
-		} else {
-			core.Logger.Warn("could not find mount point", "mount", m.Mount)
 		}
+
+		core.Logger.Info("restoring mount point", "mount", m.Mount)
+		switch m.Type {
+		case "kv":
+			core.Logger.Debug("mount is a kv", "mount", m.Mount)
+			kv.RestoreKvMount(client, m.Mount, m.Paths)
+		case "transit":
+			core.Logger.Debug("mount is a transit", "mount", m.Mount)
+			transit.RestoreTransitMount(client, m.Mount, m.Paths)
+		default:
+			core.Logger.Warn("unsupported mount type", "type", m.Type)
+		}
+
 	}
 }
 

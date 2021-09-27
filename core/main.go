@@ -30,29 +30,24 @@ var (
 	LogFmt        bool
 	Logger        hclog.Logger
 	OutFile       string
+	RecreateMount bool
 	VaultAddr     string
 	VaultToken    string
 )
 
-type KvSecretDump struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type TransitSecretDump struct {
-	Backup string `json:"backup"`
-}
-
 type PathDump struct {
-	Path         string            `json:"path"`
-	Kv_secrets   []KvSecretDump    `json:"kv_secrets"`
-	Transit_keys TransitSecretDump `json:"transit_keys"`
+	Path    string        `json:"path"`
+	Secrets []interface{} `json:"secrets"`
 }
 
 type MountDump struct {
-	Mount string     `json:"mount"`
-	Type  string     `json:"type"`
-	Paths []PathDump `json:"paths"`
+	Mount       string                  `json:"mount"`
+	Type        string                  `json:"type"`
+	Version     int                     `json:"version"`
+	Description string                  `json:"description"`
+	Options     map[string]string       `json:"options"`
+	Config      vault.MountConfigOutput `json:"config"`
+	Paths       []PathDump              `json:"paths"`
 }
 
 type VaultDump struct {
@@ -111,7 +106,8 @@ func LoadKey() crypto.KeyRing {
 			Logger.Debug("private key loaded: can encrypt and decrypt")
 			isLocked, err := keyObj.IsLocked()
 			if err != nil {
-				Logger.Error("unable to determine if key is locked", "err", err)
+				Logger.Error("unable to determine if key is locked",
+					"err", err)
 				os.Exit(1)
 			}
 

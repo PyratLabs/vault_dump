@@ -4,6 +4,12 @@
 
 Dumps and restores secrets from Hashicorp Vault into GPG2 encrypted JSON files.
 
+### Disclaimer
+
+:warning: This is a personal project and my first real venture into Golang, I
+cannot guarantee that a restore will be consistent with what was previously
+backed up. Use this code at your own risk!
+
 ### Supported secret mount types
 
   - KV (v1)
@@ -84,8 +90,9 @@ To restore a dump, you will need the following:
     or `.vault-token` file in your home directory).
   - The secret portion of the GPG key used to encrypt the dump.
   - The passphrase for the GPG key secret.
-  - Mount points to already be present in Vault (`vault_dump` will not
-    yet re-create mount points).
+  - Mount points to already be present in Vault (`vault_dump` will attempt to
+    re-create mounts if you specify the `--recreate-mounts` flag, however this
+    is not default behavior).
   - Write access to each mount.
 
 Example command:
@@ -95,7 +102,8 @@ $ ./vault_dump \
     restore \
     --file="somedump.json.asc" \
     --passphrase="yo_r-Str0ng-Pa55-phRaSe" \ # This can also be specified with VAULT_DUMP_PASSPHRASE environment variable
-    --key=me@email.com.asc  # This is a private key
+    --key=me@email.com.asc \ # This is a private key
+    --recreate-mounts # attempts to re-create mounts from a dump.
 ```
 
 ### Container image
