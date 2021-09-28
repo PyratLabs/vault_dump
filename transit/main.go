@@ -109,6 +109,7 @@ func DumpTransitMount(client *vault.Client, mount string, config *vault.MountOut
 			}
 
 			output.Paths = append(output.Paths, outputPath)
+			outputPath.Secrets = nil
 		}
 	}
 
