@@ -3,13 +3,15 @@ OUT_DIR = build
 
 VERSION=$(shell git describe --tags --always --dirty)
 COMMIT=$(shell git rev-parse HEAD)
+#2021-11-06T16:11:28.566791Z
+BUILD_DATE=$(shell date -u "+%FT%T.%N")
 
-LDFLAGS = -ldflags "-X main.version=${VERSION} -X main.gitHash=${COMMIT}"
+LDFLAGS = -ldflags "-X github.com/PyratLabs/vault_dump/cmd.version=${VERSION} -X github.com/PyratLabs/vault_dump/cmd.gitHash=${COMMIT} -X github.com/PyratLabs/vault_dump/cmd.buildDate=${BUILD_DATE}Z"
 
 all: clean linux windows darwin
 
 docker:
-	docker build -t xanmanning/vault-dump:${VERSION} .
+	docker build -t pyratlabs/vault-dump:${VERSION} .
 
 linux:
 	for GOARCH in 386 arm amd64 arm64 ; do \

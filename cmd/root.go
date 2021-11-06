@@ -35,6 +35,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	core "github.com/PyratLabs/vault_dump/core"
 	"github.com/spf13/cobra"
@@ -42,9 +43,13 @@ import (
 )
 
 var (
-	gitHash     string
+	buildDate   string = "unknown"
+	gitHash     string = "unknown"
+	goCompiler  string = runtime.Compiler
+	goVersion   string = runtime.Version()
+	platform    string = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
 	showVersion bool
-	version     string
+	version     string = "development"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -60,10 +65,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute(mainVersion string, mainGitHash string) {
-	version = mainVersion
-	gitHash = mainGitHash
-
+func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
@@ -88,7 +90,12 @@ func run() {
 	if showVersion {
 		core.Logger.Info("created by Xan Manning",
 			"url", "https://github.com/PyratLabs/vault_dump",
-			"version", version, "git-hash", gitHash)
+			"version", version,
+			"git-hash", gitHash,
+			"build-date", buildDate,
+			"platform", platform,
+			"go-version", goVersion,
+			"compiler", goCompiler)
 		os.Exit(0)
 	}
 

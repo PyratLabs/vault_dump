@@ -34,9 +34,6 @@ import (
 	"github.com/PyratLabs/vault_dump/cmd"
 )
 
-var version string = "development"
-var gitHash string
-
 func main() {
-	cmd.Execute(version, gitHash)
+	cmd.Execute()
 }
