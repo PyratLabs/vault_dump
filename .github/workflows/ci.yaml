@@ -50,21 +50,18 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.16.0'
+          go-version: '1.17.0'
 
       - name: Run build
         run: make all
 
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            LICENSE
-            build/*
+      - name: Set build variables
+        id: variables
+        env:
+          GITHUB_ORG: ${{ github.repository_owner }}
+        run: |
+          echo ::set-output name=version::$(echo ${GITHUB_REF} | cut -d / -f 3)
+          echo ::set-output name=owner::$(echo ${GITHUB_ORG,,})
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -75,14 +72,19 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: pyratlabs
+          username: ${{ steps.variables.outputs.owner }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push container image
         uses: docker/build-push-action@v2
-        env:
-          GITHUB_ORG: ${{ github.repository_owner }}
         with:
           context: .
           push: true
-          tags: ${GITHUB_ORG,,}/vault-dump:latest,${GITHUB_ORG,,}/vault-dump:${{ steps.get_version.outputs.VERSION }}
+          tags: ${{ steps.variables.outputs.owner }}/vault-dump:latest,${{ steps.variables.outputs.owner }}/vault-dump:${{ steps.variables.outputs.version }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            LICENSE
+            build/*
