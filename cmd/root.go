@@ -48,7 +48,7 @@ var (
 	goCompiler  string = runtime.Compiler
 	goVersion   string = runtime.Version()
 	platform    string = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
-	showVersion bool
+	ShowVersion bool
 	version     string = "development"
 )
 
@@ -75,7 +75,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&core.LogFmt, "json", "j",
 		false, "print logs in JSON format")
 
-	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v",
+	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "v",
 		false, "show vault_dump version")
 
 	rootCmd.PersistentFlags().BoolVarP(&core.Debug, "debug", "x",
@@ -87,7 +87,7 @@ func init() {
 func run() {
 	core.Logger = core.CreateLogger("vault_dump", core.Debug, core.LogFmt)
 
-	if showVersion {
+	if ShowVersion {
 		core.Logger.Info("created by Xan Manning",
 			"url", "https://github.com/PyratLabs/vault_dump",
 			"version", version,
