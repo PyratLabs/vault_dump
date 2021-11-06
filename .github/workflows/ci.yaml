@@ -75,7 +75,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ github.repository_owner }}
+          username: pyratlabs
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push container image

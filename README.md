@@ -111,8 +111,8 @@ $ ./vault_dump \
 You can download the container image from hub.docker.com:
 
 ```bash
-$ docker pull xanmanning/vault-dump:latest
-$ podman pull docker.io/xanmanning/vault-dump:latest
+$ docker pull pyratlabs/vault-dump:latest
+$ podman pull docker.io/pyratlabs/vault-dump:latest
 ```
 
 ## License
