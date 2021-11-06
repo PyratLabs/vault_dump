@@ -11,7 +11,7 @@ LDFLAGS = -ldflags "-X github.com/PyratLabs/vault_dump/cmd.version=${VERSION} -X
 all: clean linux windows darwin
 
 docker:
-	docker build -t PyratLabs/vault-dump:${VERSION} .
+	docker build -t pyratlabs/vault-dump:${VERSION} .
 
 linux:
 	for GOARCH in 386 arm amd64 arm64 ; do \
