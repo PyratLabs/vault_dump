@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /build/vault_dump
 COPY . .
@@ -8,7 +8,7 @@ RUN apk add --no-cache git make \
     && make linux-amd64 \
     && adduser -D -g '' vault_dump
 
-FROM alpine:3.20
+FROM alpine:3.22
 
 COPY --from=builder /build/vault_dump/build/vault_dump-linux-amd64 /usr/bin/vault_dump
 COPY --from=builder /etc/passwd /etc/passwd

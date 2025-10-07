@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -90,7 +89,7 @@ func LoadKey() crypto.KeyRing {
 	}
 
 	for _, keyfile := range KeyFile {
-		raw_key, err := ioutil.ReadFile(keyfile)
+		raw_key, err := os.ReadFile(keyfile)
 		if err != nil {
 			Logger.Error("unable to read file", "key", keyfile, "err", err)
 			os.Exit(1)
@@ -181,7 +180,7 @@ func Authenticate() (*vault.Client, error) {
 			Logger.Warn("cannot determine home directory")
 		}
 
-		fileToken, err := ioutil.ReadFile(
+		fileToken, err := os.ReadFile(
 			fmt.Sprintf("%s/.vault-token", home))
 
 		if err != nil {
